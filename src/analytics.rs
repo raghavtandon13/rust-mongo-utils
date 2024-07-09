@@ -49,10 +49,10 @@ pub async fn total_count(collection: &Collection<Document>) {
         .await
         .unwrap();
 
-    println!("MoneyTap Total: {}", count_money_tap_entries);
-    println!("MoneyTap Sent: {}", money_tap_entries_true);
-    println!("MoneyTap Pending: {}", money_tap_entries_false);
-    println!("MoneyTap notBanned: {}", not_banned);
+    println!("MT Total: {}", count_money_tap_entries);
+    println!("MT Sent: {}", money_tap_entries_true);
+    println!("MT Pending: {}", money_tap_entries_false);
+    println!("MT notBanned: {}", not_banned);
 }
 
 pub async fn pipeline(collection: &Collection<Document>) -> Result<(), Box<dyn Error>> {
