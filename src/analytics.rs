@@ -21,17 +21,17 @@ pub async fn duplicates(collection: &Collection<Document>) -> Result<(), Box<dyn
     Ok(())
 }
 
-pub async fn total_count(collection: &Collection<Document>) {
+pub async fn total_count(collection: &Collection<Document>, partner: &str) {
     let count_money_tap_entries = collection
-        .count_documents(doc! { "partner": "MoneyTap" }, None)
+        .count_documents(doc! { "partner": partner}, None)
         .await
         .unwrap();
     let money_tap_entries_false = collection
-        .count_documents(doc! { "partner": "MoneyTap", "partnerSent": false }, None)
+        .count_documents(doc! { "partner": partner, "partnerSent": false }, None)
         .await
         .unwrap();
     let money_tap_entries_true = collection
-        .count_documents(doc! { "partner": "MoneyTap", "partnerSent": true }, None)
+        .count_documents(doc! { "partner": partner, "partnerSent": true }, None)
         .await
         .unwrap();
     let not_banned = collection

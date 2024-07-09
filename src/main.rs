@@ -8,12 +8,13 @@ mod analytics;
 async fn main() {
     dotenv::dotenv().ok();
     let mongodb_uri = env::var("MONGODB_URI").expect("MONGODB_URI must be set");
+    let partner = env::var("PARTNER").expect("PARTNER must be set");
 
     let client = Client::with_uri_str(&mongodb_uri).await.unwrap();
     let database = client.database("test");
     let collection = database.collection::<Document>("users");
 
-    analytics::total_count(&collection).await;
+    analytics::total_count(&collection, &partner).await;
     analytics::pipeline(&collection).await.unwrap();
     analytics::duplicates(&collection).await.unwrap();
 }
