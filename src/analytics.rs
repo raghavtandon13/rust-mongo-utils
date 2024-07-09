@@ -55,7 +55,7 @@ pub async fn total_count(collection: &Collection<Document>) {
     println!("MoneyTap notBanned: {}", not_banned);
 }
 
-pub async fn _pipeline(collection: &Collection<Document>) -> Result<(), Box<dyn Error>> {
+pub async fn pipeline(collection: &Collection<Document>) -> Result<(), Box<dyn Error>> {
     let match_stage = doc! {
             "$match": {
                 "updatedAt": {
