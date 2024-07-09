@@ -13,7 +13,7 @@ async fn main() {
     let database = client.database("test");
     let collection = database.collection::<Document>("users");
 
-    // analytics::total_count(&collection).await;
-    // analytics::pipeline(&collection).await.unwrap()
-    analytics::duplicates(&collection).await.unwrap()
+    analytics::total_count(&collection).await;
+    analytics::pipeline(&collection).await.unwrap();
+    analytics::duplicates(&collection).await.unwrap();
 }

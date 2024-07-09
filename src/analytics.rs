@@ -21,7 +21,7 @@ pub async fn duplicates(collection: &Collection<Document>) -> Result<(), Box<dyn
     Ok(())
 }
 
-pub async fn _total_count(collection: &Collection<Document>) {
+pub async fn total_count(collection: &Collection<Document>) {
     let count_money_tap_entries = collection
         .count_documents(doc! { "partner": "MoneyTap" }, None)
         .await
