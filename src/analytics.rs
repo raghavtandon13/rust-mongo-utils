@@ -22,15 +22,15 @@ pub async fn duplicates(collection: &Collection<Document>) -> Result<(), Box<dyn
 }
 
 pub async fn total_count(collection: &Collection<Document>, partner: &str) {
-    let count_money_tap_entries = collection
+    let count_mt_entries = collection
         .count_documents(doc! { "partner": partner}, None)
         .await
         .unwrap();
-    let money_tap_entries_false = collection
+    let mt_entries_false = collection
         .count_documents(doc! { "partner": partner, "partnerSent": false }, None)
         .await
         .unwrap();
-    let money_tap_entries_true = collection
+    let mt_entries_true = collection
         .count_documents(doc! { "partner": partner, "partnerSent": true }, None)
         .await
         .unwrap();
@@ -49,9 +49,9 @@ pub async fn total_count(collection: &Collection<Document>, partner: &str) {
         .await
         .unwrap();
 
-    println!("MT Total: {}", count_money_tap_entries);
-    println!("MT Sent: {}", money_tap_entries_true);
-    println!("MT Pending: {}", money_tap_entries_false);
+    println!("MT Total: {}", count_mt_entries);
+    println!("MT Sent: {}", mt_entries_true);
+    println!("MT Pending: {}", mt_entries_false);
     println!("MT notBanned: {}", not_banned);
 }
 
@@ -523,40 +523,6 @@ pub async fn pipeline(collection: &Collection<Document>) -> Result<(), Box<dyn E
         sort_stage,
         limit_stage,
     ];
-    fn colorize_json(json: &Value, indent: usize) -> String {
-        match json {
-            Value::Object(map) => {
-                let contents: Vec<String> = map
-                    .iter()
-                    .map(|(k, v)| {
-                        format!(
-                            "{}{}: {}",
-                            "  ".repeat(indent + 1),
-                            k.green(),
-                            colorize_json(v, indent + 1)
-                        )
-                    })
-                    .collect();
-                format!("{{\n{}\n{}}}", contents.join(",\n"), "  ".repeat(indent))
-            }
-            Value::Array(arr) => {
-                let contents: Vec<String> =
-                    arr.iter().map(|v| colorize_json(v, indent + 1)).collect();
-                format!("[{}]", contents.join(", "))
-            }
-            /* date */
-            Value::String(s) => {
-                if s.starts_with("20") && s.len() > 20 {
-                    s.purple().to_string()
-                } else {
-                    format!("'{}'", s.cyan())
-                }
-            }
-            Value::Number(n) => n.to_string().yellow().to_string(),
-            Value::Bool(b) => b.to_string().yellow().to_string(),
-            Value::Null => "null".bright_black().to_string(),
-        }
-    }
 
     let mut cursor = collection.aggregate(pipeline, None).await?;
 
@@ -580,4 +546,38 @@ pub async fn pipeline(collection: &Collection<Document>) -> Result<(), Box<dyn E
         println!("{}", colorized_json);
     }
     Ok(())
+}
+
+pub fn colorize_json(json: &Value, indent: usize) -> String {
+    match json {
+        Value::Object(map) => {
+            let contents: Vec<String> = map
+                .iter()
+                .map(|(k, v)| {
+                    format!(
+                        "{}{}: {}",
+                        "  ".repeat(indent + 1),
+                        k.green(),
+                        colorize_json(v, indent + 1)
+                    )
+                })
+                .collect();
+            format!("{{\n{}\n{}}}", contents.join(",\n"), "  ".repeat(indent))
+        }
+        Value::Array(arr) => {
+            let contents: Vec<String> = arr.iter().map(|v| colorize_json(v, indent + 1)).collect();
+            format!("[{}]", contents.join(", "))
+        }
+        /* date */
+        Value::String(s) => {
+            if s.starts_with("20") && s.len() > 20 {
+                s.purple().to_string()
+            } else {
+                format!("'{}'", s.cyan())
+            }
+        }
+        Value::Number(n) => n.to_string().yellow().to_string(),
+        Value::Bool(b) => b.to_string().yellow().to_string(),
+        Value::Null => "null".bright_black().to_string(),
+    }
 }
