@@ -4,11 +4,13 @@ use std::env;
 use tokio;
 
 mod analytics;
+mod merge2;
 mod merge_users;
 
 #[tokio::main]
 async fn main() {
     dotenv::dotenv().ok();
+
     let matches = Command::new("mongo-utils")
         .version("1.0")
         .about("Performs different operations based on flags")
@@ -18,6 +20,14 @@ async fn main() {
                 .long("merge")
                 .help("Runs the merge function")
                 .action(clap::ArgAction::SetTrue),
+        )
+        .arg(
+            Arg::new("merge2")
+                .long("merge2")
+                .help("Runs the merge2 function with a specified value")
+                .value_name("VALUE")
+                .num_args(1)
+                .required(false),
         )
         .arg(
             Arg::new("total")
@@ -44,13 +54,16 @@ async fn main() {
 
     let mongodb_uri = env::var("MONGODB_URI").expect("MONGODB_URI must be set");
     let partner = env::var("PARTNER").expect("PARTNER must be set");
-
     let client = Client::with_uri_str(&mongodb_uri).await.unwrap();
     let database = client.database("test");
     let collection = database.collection::<Document>("users");
 
     if matches.get_flag("merge") {
         merge_users::merge(&collection).await.unwrap();
+    } else if let Some(merge2_value) = matches.get_one::<String>("merge2") {
+        merge2::merge(&collection, merge2_value.parse::<u32>().unwrap())
+            .await
+            .unwrap();
     } else if matches.get_flag("total") {
         analytics::total_count(&collection, &partner).await;
     } else if matches.get_flag("pipeline") {

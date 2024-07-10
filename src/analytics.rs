@@ -1,14 +1,17 @@
 use colored::*;
 use futures_util::stream::TryStreamExt;
-use mongodb::{
-    bson::{doc, DateTime, Document},
-    Collection,
-};
+use mongodb::bson::{doc, DateTime, Document};
+use mongodb::Collection;
 use serde_json::Value;
 use std::error::Error;
 
 pub async fn duplicates(collection: &Collection<Document>) -> Result<(), Box<dyn Error>> {
     let pipeline = vec![
+        doc! {
+        "$match": { "updatedAt": {
+          "$gte": DateTime::parse_rfc3339_str("2024-05-15T00:00:00Z")?,
+          "$lt": DateTime::parse_rfc3339_str("2025-05-16T00:00:00Z")?
+        }}},
         doc! { "$group": { "_id": "$phone", "count": { "$sum": 1 } } },
         doc! { "$match": { "count": { "$gt": 1 } } },
         doc! { "$group": { "_id": "null", "duplicatePhones": { "$sum": 1 }, "totalDuplicates": { "$sum": "$count" } } },
